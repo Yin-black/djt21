@@ -1,0 +1,43 @@
+{% extends "base/front_base.html" %}
+{% block title %}登录页{% endblock %}
+{% block link %}
+    <link rel="stylesheet" href="/static/css/authPro/auth.css">
+    <link rel="stylesheet" href="/static/css/base/sweetalert.css">
+{% endblock %}
+{% block main %}
+    <!-- container start -->
+    <main id="container">
+        <div class="login-contain">
+        <div class="top-contain">
+            <h4 class="please-login">请登录</h4>
+            <a href="{% url 'authPro:register' %}" class="register">立即注册 &gt;</a>
+        </div>
+        <div class="form-contain"> {% csrf_token %}
+            <div class="form-item">
+                <input type="tel" placeholder="请输入手机号" name="telephone" class="form-control" autocomplete="off">
+            </div>
+            <div class="form-item">
+                <input type="password" placeholder="请输入密码" name="password" class="form-control">
+            </div>
+            <div class="form-item clearfix">
+                <label>
+                    <input type="checkbox" name="remember">
+                    <span>记住我</span>
+                </label>
+                <a href="javascript:void(0);" class="forget-password">忘记密码?</a>
+            </div>
+            <div class="form-login">
+                <a href="javascript:void(0);" class="login-btn">登录</a>
+            </div>
+        </div>
+    </div>
+    </main>
+
+{% endblock %}
+{% block src %}
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script src="{% static 'js/base/message.js' %}"></script>
+    <script src="{% static 'js/base/common.js' %}"></script>
+    <script src="{% static 'js/authPro/login.js' %}"></script>
+    <script src="{% static 'js/base/sweetalert.min.js' %}"></script>
+{% endblock %}

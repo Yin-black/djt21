@@ -1,0 +1,78 @@
+
+{% extends 'cms/base/admin_base.html' %}
+
+
+{% block header %}
+发布新闻
+{% endblock %}
+
+
+{% block title %}
+发布新闻
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12 col-xs-12 col-sm-12">
+    <div class="box box-primary">
+      <div class="box-body">
+        <div class="form-group">
+          <label for="news-title">新闻标题</label>
+          <input type="text" class="form-control" id="news-title" name="news-title" placeholder="请输入新闻标题" autofocus>
+        </div>
+        <div class="form-group">
+          <label for="news-desc">新闻描述</label>
+          <textarea name="news-desc" id="news-desc" placeholder="请输入新闻描述" class="form-control"
+                    style="height: 8rem; resize: none;"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="news-category">新闻分类</label>
+          <select name="news-category" id="news-category" class="form-control">
+            <option value="0">-- 请选择新闻分类 --</option>
+              {% for new_tas in news_tags %}
+                <option value="{{ forloop.counter }}">{{ new_tas.name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" id="container">
+          <label for="news-thumbnail-url">新闻缩略图</label>
+          <div class="input-group">
+            <input type="text" class="form-control" id="news-thumbnail-url" name="news-thumbnail-url"
+                   placeholder="请上传图片或输入新闻缩略图地址">
+            <div class="input-group-btn">
+              <label class="btn btn-default btn-file">
+                上传至服务器 <input type="file" id="upload-news-thumbnail">
+              </label>
+              <button class="btn btn-info" id="upload-btn">上传至七牛</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="progress" style="display: none">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0;">0%</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="news-content">新闻内容</label>
+          <div id="news-content"></div>
+        </div>
+      </div>
+      <div class="box-footer">
+        <a href="javascript:void (0);" class="btn btn-primary pull-right" id="btn-pub-news">
+          发布新闻
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+   <script src="https://cdn.bootcss.com/plupload/2.1.9/moxie.min.js"></script>
+  <script src="https://cdn.bootcss.com/plupload/2.1.9/plupload.dev.js"></script>
+  <script src="https://cdn.bootcss.com/qiniu-js/1.0.17.1/qiniu.min.js"></script>
+  <script src="https://unpkg.com/wangeditor@3.1.1/release/wangEditor.min.js"></script>
+  <script src="/static/js/cms/news/fqiniu.js"></script>
+  <script src="/static/js/cms/news/pubnews.js"></script>
+
+{% endblock %}
