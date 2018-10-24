@@ -57,8 +57,8 @@ INSTALLED_APPS = [
     'apps.course',
     'apps.doc',
     'apps.authPro',
-    'apps.cms'
-
+    'apps.cms',
+    'rest_framework',          #djangorestframework框架app
 ]
 
 MIDDLEWARE = [

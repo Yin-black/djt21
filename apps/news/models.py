@@ -10,7 +10,7 @@ class NewsTag(models.Model):
     name = models.CharField(max_length=20)
     create_time = models.DateTimeField(auto_now_add=True)
     # 是否删除标志
-    #False 为假删，True 为真删
+    #False 为此记录删除，True 为未除删除
     is_delete = models.BooleanField(default=True)
 
 
@@ -42,3 +42,6 @@ class NewsConten(models.Model):
 
     auth = models.ForeignKey('authPro.User',on_delete=models.CASCADE)
     news = models.ForeignKey('NewsPub',on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ('-id',)

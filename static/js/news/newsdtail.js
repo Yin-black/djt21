@@ -1,6 +1,6 @@
 $(function () {
   // 获取评论按钮
-  let $addCommentBtn = $(".comment-btn");
+  let $addCommentBtn = $(".comment-pub .comment-btn");
   // 获取评论框
   let $commentInput = $(".logged-comment").find('input:first-child');
   // 未登录提示框
@@ -16,10 +16,10 @@ $(function () {
     let content = $commentInput.val();
     // 获取绑定在按钮上的新闻ID
     let newsId = $(this).data("news-id");
-    console.log(`
-      评论内容： ${content}
-      评论的新闻id: ${newsId}
-    `);
+    // console.log(`
+    //   评论内容： ${content}
+    //   评论的新闻id: ${newsId}
+    // `);
     selfAjax('/news/add_content/', 'post', {"news_id": newsId, "content": content}, res => {
       // console.log(res);  // 打印res
       if(res["code"]===2){
@@ -29,10 +29,11 @@ $(function () {
         // 将时间过滤
         let result = dateFormat(create_time);
         // 定义评论的字符串
+          console.log(news_comment);
         let commentStr = `<li class="comment-item">
                  <div class="comment-info clearfix">
                       <img src="/static/images/avatar.jpeg" alt="avatar" class="comment-avatar">
-                      <span class="comment-user">${news_comment["author"]["username"]}</span>
+                      <span class="comment-user">${news_comment["auth"]["username"]}</span>
                       <span class="comment-pub-time">${result}</span>
                   </div>
                   <div class="comment-content">${news_comment["content"]}</div>
@@ -47,10 +48,10 @@ $(function () {
 
   // 一打开页面，就请求返回评论的API接口 获取数据 并展示在页面上
   $.get('/news/content/?news_id='+$addCommentBtn.data('news-id'), res => {
-    // console.log(res);
+    console.log(res);
     if (res["code"] === 2) {
       let newsComments = res["data"];
-      console.log(newsComments);
+      // console.log(newsComments);
       // 设置评论数量
       $commentCount.text(newsComments.length);
       // 映射新闻成标签
@@ -59,7 +60,7 @@ $(function () {
         return `<li class="comment-item">
                    <div class="comment-info clearfix">
                         <img src="/static/images/avatar.jpeg" alt="avatar" class="comment-avatar">
-                        <span class="comment-user">${item["author"]["username"]}</span>
+                        <span class="comment-user">${item["auth"]["username"]}</span>
                         <span class="comment-pub-time">${result}</span>
                     </div>
                     <div class="comment-content">${item["content"]}</div>
@@ -70,19 +71,19 @@ $(function () {
   });
 
   // 登录后在进行评论
-  $loginComment.focus(()=>{
-    $.post({
-      url: '/news/add-comment/',
-      success: res => {
-        if (res["code"] === 403) {
-          window.message.showError(res["msg"]);
-          setTimeout(() => {
-            window.location.href = '/account/login/';
-          }, 2000)
-        }
-      }
-    })
-  });
+  // $loginComment.focus(()=>{
+  //   $.post({
+  //     url: '/news/add_content/',
+  //     success: res => {
+  //       if (res["code"] === 403) {
+  //         window.message.showError(res["msg"]);
+  //         setTimeout(() => {
+  //           window.location.href = '/auth/login/';
+  //         }, 2000)
+  //       }
+  //     }
+  //   })
+  // });
 });
 
 function selfAjax(url, method, data, successCallback){
