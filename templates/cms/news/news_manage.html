@@ -1,0 +1,155 @@
+<!-- news_manage.html -->
+{% extends 'cms/base/admin_base.html' %}
+
+
+{% block header %}
+  新闻管理列表
+{% endblock %}
+
+{% block title %}
+  新闻管理列表
+{% endblock %}
+
+
+
+
+{% block content %}
+ <link rel="stylesheet" href="/static/css/cms/base/bootstrap-datepicker.min.css">
+  <style>
+    .ml20 {
+      margin-left: 20px;
+    }
+
+    .mt20 {
+      margin-top: 20px;
+    }
+  </style>
+  <div class="box">
+    <div class="box header" style="margin: 0;">
+      <form action="" class="form-inline">
+        <div class="form-group ml20 mt20">
+          <label for="select-time">时间：</label>
+          <input type="text" class="form-control" placeholder="请选择起始时间" readonly id="select-time" name="start_time">
+          -
+          <input type="text" class="form-control" placeholder="请选择结束时间" readonly name="end_time">
+        </div>
+        <div class="form-group ml20 mt20">
+          <label for="title">标题：</label>
+          <input type="text" class="form-control" placeholder="请输入标题" id="title" name="title">
+        </div>
+        <div class="form-group ml20 mt20">
+          <label for="author">作者：</label>
+          <input type="text" class="form-control" placeholder="请输入作者" id="author" name="author">
+        </div>
+        <div class="form-group ml20 mt20">
+          <label for="tag">标签：</label>
+          <select class="form-control" id="tag" name="tag_id">
+            <option value="0">--请选择标签--</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+        <div class="form-group ml20 mt20">
+          <button class="btn btn-primary">查询</button>
+          <a href="javascript:void(0);" class="btn btn-info ml20">清除查询</a>
+        </div>
+      </form>
+    </div>
+    <div class="box-body">
+      <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+          <th>标题</th>
+          <th>作者</th>
+          <th>标签</th>
+          <th>发布时间</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for p in p_news.object_list %}
+          <tr>
+            <td><a href="javascript:void(0);" target="_blank">{{ p.title }}</a></td>
+            <td>{{ p.auth.username }}</td>
+            <td>{{ p.tag.name }}</td>
+            <td>{{ p.pub_time }}</td>
+            <td>
+              <a href="javascript:void (0);" class="btn btn-xs btn-warning">编辑</a>
+              <a href="javascript:void (0);" class="btn btn-xs btn-danger btn-del" data-news-id="1">删除</a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="box-footer">
+      <span class="pull-left">第{{ p_news.number }}页/总共{{ paginator.num_pages }}页</span>
+      <nav class="pull-right">
+        <!-- 分页 -->
+        <ul class="pagination">
+
+        <!-- 普通显示样式 -->
+          <!-- 上一页 -->
+{#            {% if not p_news.has_previous %}#}
+{##}
+{#                <li class="disabled"><a href="javascript:void(0);">上一页</a></li>#}
+{#            {% else %}#}
+{#                <li><a href="?p={{ p_news.previous_page_number }};">上一页</a></li>#}
+{#            {% endif %}#}
+{#        {% for p in paginator.page_range %}#}
+{#          <li><a href="?p={{ p }}">{{ p }}</a></li>#}
+{#         {% endfor %}#}
+{#          <!-- 下一页 -->#}
+{#         {% if p_news.has_next %}#}
+{#             <li><a href="?p={{ p_news.next_page_number }};">下一页</a></li>#}
+{#         {% else %}#}
+{#             <li class="disabled"><a href="javascript:void(0);">下一页</a></li>#}
+{#        {% endif %}#}
+
+
+<!-- 带"..."缩略显示的页码样式#} -->
+            {% if not p_news.has_previous %}
+                <li class="disabled"><a href="javascript:void(0);">上一页</a></li>
+            {% else %}
+                <li><a href="?p={{ p_news.previous_page_number }}">上一页</a></li>
+            {% endif %}
+{#            左边页码#}
+{#            <li><a href="?p=1;">1</a></li>#}
+            {% if left_flag %}
+               <li><a href="javascript:void(0);">...</a></li>
+            {% endif %}
+            {% for left in left_range %}
+                <li><a href="?p={{ left }}">{{ left }}</a></li>
+            {% endfor %}
+
+{#            <li><a href="?p={{ current_page }}">{{ current_page }}</a></li>#}
+{#            右边页码#}
+
+            {% for right in right_range %}
+                <li><a href="?p={{ right }}">{{ right }}</a></li>
+            {% endfor %}
+
+            {% if right_flag %}
+                <li><a href="javascript:void(0);">...</a></li>
+            {% endif %}
+
+{#             <li><a href="?p={{ paginator.num_pages }}">{{ paginator.num_pages }}</a></li>#}
+
+            {% if p_news.has_next %}
+                <li><a href="?p={{ p_news.next_page_number }}">下一页</a></li>
+            {% else %}
+                <li class="disabled"><a href="javascript:void(0);">下一页</a></li>
+            {% endif %}
+
+
+        </ul>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script src="/static/js/cms/news/bootstrap-datepicker.js"></script>
+  <script src="/static/js/cms/news/bootstrap-datepicker.zh-CN.js"></script>
+  <script src="/static/js/cms/news/news_manage.js"></script>
+{% endblock %}

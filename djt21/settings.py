@@ -40,6 +40,10 @@ SECRET_KEY = 'bw3yxz8i0kbjGGEaWGk_fSB81Ac9J_1MS6taBT5H'
 #七牛空间名称
 BUCKET_NAME = 'pizizhu-image'
 
+#每页显示的新闻数量
+ONE_PAGE_NEWS_COUNT = 2
+
+
 
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'authPro.User'  #注册自定的User模型，代替系统自定义的User

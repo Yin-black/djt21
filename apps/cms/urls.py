@@ -9,4 +9,5 @@ urlpatterns = [
     path('pub_news/',views.PubNews.as_view(),name='pubnews'),
     path('upload_qiniu/',views.Upload_Qiniu.as_view(),name='upload_qiniu'),
     path('upload-server/',views.Upload_server.as_view(),name='upload_server'),
+    path('news_manage/',views.NewsManage.as_view(),name='news_manage'),
 ]

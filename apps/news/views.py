@@ -9,8 +9,13 @@ from .forms import NewContent
 from apps.authPro.formcheck import FormMixin
 from .models import NewsConten
 from utils import json_status
-from .serailizer import NewsContentSerailizer
+from .serailizer import NewsContentSerailizer,NewsPubSerailizer
 from .decortors import ajax_login_required
+from djt21 import settings
+from django.core.paginator import Paginator   #分页
+
+
+
 # Create your views here.
 class NewsView(View):
     def get(self,request):
@@ -72,3 +77,23 @@ class GetNewsContentView(View):
             return json_status.result(data=contents.data)
         else:
             return json_status.params_error(message='没有这条新闻！')
+
+
+def newslis_view(request):
+    """
+    新闻列表。每点击"加载更多"按钮加载ONE_PAGE_NEWS_COUNT条新闻
+    """
+
+    page = int(request.GET.get('page',1))
+    tag_id = int(request.GET.get('tag_id',0))
+
+    start_page = settings.ONE_PAGE_NEWS_COUNT * (page-1)
+    end_page = start_page + settings.ONE_PAGE_NEWS_COUNT
+    if tag_id:
+        nlist = NewsPub.objects.select_related('tag','auth').defer('content').filter(is_delete=True,tag_id=tag_id)[start_page:end_page]
+
+        seralizer = NewsPubSerailizer(nlist,many=True)
+        return json_status.result(data={"newses":seralizer.data})
+    else:
+        print("新闻不存在！")
+        return json_status.params_error(message='新闻不存在！')
