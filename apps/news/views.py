@@ -2,14 +2,14 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.urls import reverse
 from django.views import View
-from .models import NewsPub,NewsTag
+from .models import NewsPub,NewsTag,NewsHotAddModle
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .forms import NewContent
 from apps.authPro.formcheck import FormMixin
 from .models import NewsConten
 from utils import json_status
-from .serailizer import NewsContentSerailizer,NewsPubSerailizer
+from .serailizer import NewsContentSerailizer,NewsPubSerailizer,NewsTagSerailizer,NewsHotSerailizer
 from .decortors import ajax_login_required
 from djt21 import settings
 from django.core.paginator import Paginator   #分页
@@ -19,7 +19,7 @@ from django.core.paginator import Paginator   #分页
 # Create your views here.
 class NewsView(View):
     def get(self,request):
-        newspubs = NewsPub.objects.defer('content').filter(is_delete=True).all().order_by('-id')   #倒序排列，最新发布的提前显示,同时conten字段不查询以提高速度
+        newspubs = NewsPub.objects.defer('content').filter(is_delete=True).order_by('-id')   #倒序排列，最新发布的提前显示,同时conten字段不查询以提高速度
         tag = NewsTag.objects.filter(is_delete=True).all()
         return render(request,'news/index.html',context={"newspubs":newspubs,"newtags":tag})
 
@@ -97,3 +97,42 @@ def newslis_view(request):
     else:
         print("新闻不存在！")
         return json_status.params_error(message='新闻不存在！')
+
+#     /news/hot/list/
+def news_hot_list(request):
+    """
+    热点新闻列表
+    """
+    hot_news = NewsHotAddModle.objects.all()
+    if hot_news:
+        serailizer = NewsHotSerailizer(hot_news,many=True)
+        return json_status.result(data=serailizer.data)
+    return json_status.params_error(message='没有设置优先级的新闻！')
+
+# /news/tag/list/
+def news_tag_list(request):
+    """
+    新闻标签列表
+    """
+    tags = NewsTag.objects.all()
+    # print(tags[0])
+    serializer = NewsTagSerailizer(tags,many=True)
+    # print(serializer.data)
+    return json_status.result(data={'tags':serializer.data})
+
+def news_with_tag(request):
+    """
+    根据新闻标签显示新闻标题
+    """
+    tag_id = int(request.GET.get('tag_id',0))
+    if tag_id:
+        newstag = NewsPub.objects.filter(tag_id= tag_id,is_delete=True)
+    elif not tag_id:
+        newstag = NewsPub.objects.all()
+
+    # print(tag_id)
+    # print("++++++")
+    # print(newstag)
+    serializer = NewsPubSerailizer(newstag,many=True)
+
+    return json_status.result(data={'newses':serializer.data})

@@ -45,3 +45,13 @@ class NewsConten(models.Model):
 
     class Meta:
         ordering = ('-id',)
+
+class NewsHotAddModle(models.Model):
+    """
+    热门新闻
+    """
+    news = models.OneToOneField('NewsPub',on_delete=models.CASCADE)
+    priority = models.IntegerField()
+
+    create_time = models.DateTimeField(auto_now_add=True)
+    is_delete = models.BooleanField(default=True)

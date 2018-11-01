@@ -2,12 +2,16 @@
   @author: handsomeFu;
   @Date: 2018/10/16 20:11;
 */
+let E = window.wangEditor;
+  window.editor = new E('#news-content');
+  window.editor.create();
 $(function () {
 
   // 生成富文本编辑器  https://www.kancloud.cn/wangfupeng/wangeditor3/332599
-  let E = window.wangEditor;
-  let editor = new E('#news-content');
-  editor.create();
+
+
+       // editor.txt.html('<p>{{ news_content.content|safe }}</p>')
+
 
   // ====================  传文件 ============================
   // 获取缩略图输入框元素

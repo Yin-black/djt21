@@ -3,12 +3,20 @@
 
 
 {% block header %}
+    {% if news_content %}
+    更新新闻
+    {% else %}
 发布新闻
+    {% endif %}
 {% endblock %}
 
 
 {% block title %}
-发布新闻
+    {% if news_content %}
+    更新新闻
+    {% else %}
+    发布新闻
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -18,27 +26,46 @@
       <div class="box-body">
         <div class="form-group">
           <label for="news-title">新闻标题</label>
-          <input type="text" class="form-control" id="news-title" name="news-title" placeholder="请输入新闻标题" autofocus>
+            {% if news_content %}
+             <input type="text" class="form-control" id="news-title" name="news-title" placeholder="请输入新闻标题" value="{{ news_content.title }}" autofocus>
+            {% else %}
+                <input type="text" class="form-control" id="news-title" name="news-title" placeholder="请输入新闻标题" autofocus>
+            {% endif %}
         </div>
         <div class="form-group">
           <label for="news-desc">新闻描述</label>
+            {% if news_content %}
           <textarea name="news-desc" id="news-desc" placeholder="请输入新闻描述" class="form-control"
+                    style="height: 8rem; resize: none;">{{ news_content.desc }}</textarea>
+            {% else %}
+                <textarea name="news-desc" id="news-desc" placeholder="请输入新闻描述" class="form-control"
                     style="height: 8rem; resize: none;"></textarea>
+            {% endif %}
         </div>
         <div class="form-group">
           <label for="news-category">新闻分类</label>
           <select name="news-category" id="news-category" class="form-control">
             <option value="0">-- 请选择新闻分类 --</option>
               {% for new_tas in news_tags %}
+                  {% if news_content and news_content.tag.id == new_tas.id %}
+                      <option value="{{ forloop.counter }}" selected>{{ new_tas.name }}</option>
+                  {% else %}
+
                 <option value="{{ forloop.counter }}">{{ new_tas.name }}</option>
+                  {% endif %}
               {% endfor %}
           </select>
         </div>
         <div class="form-group" id="container">
           <label for="news-thumbnail-url">新闻缩略图</label>
           <div class="input-group">
+              {% if news_content %}
             <input type="text" class="form-control" id="news-thumbnail-url" name="news-thumbnail-url"
+                   placeholder="请上传图片或输入新闻缩略图地址" value="{{ news_content.thumbnail }}">
+              {% else %}
+                  <input type="text" class="form-control" id="news-thumbnail-url" name="news-thumbnail-url"
                    placeholder="请上传图片或输入新闻缩略图地址">
+              {% endif %}
             <div class="input-group-btn">
               <label class="btn btn-default btn-file">
                 上传至服务器 <input type="file" id="upload-news-thumbnail">
@@ -54,13 +81,21 @@
         </div>
         <div class="form-group">
           <label for="news-content">新闻内容</label>
+
           <div id="news-content"></div>
+
         </div>
       </div>
       <div class="box-footer">
+          {% if news_content %}
+              <a href="javascript:void (0);" class="btn btn-primary pull-right" id="btn-pub-news">
+          更新新闻
+        </a>
+          {% else %}
         <a href="javascript:void (0);" class="btn btn-primary pull-right" id="btn-pub-news">
           发布新闻
         </a>
+          {% endif %}
       </div>
     </div>
   </div>
@@ -74,5 +109,10 @@
   <script src="https://unpkg.com/wangeditor@3.1.1/release/wangEditor.min.js"></script>
   <script src="/static/js/cms/news/fqiniu.js"></script>
   <script src="/static/js/cms/news/pubnews.js"></script>
+  <script>
+      window.onload=function () {
 
+          window.editor.txt.html('{{ news_content.content|safe }}');
+      }
+  </script>
 {% endblock %}

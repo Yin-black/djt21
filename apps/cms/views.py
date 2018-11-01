@@ -5,7 +5,7 @@ from django import views
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
-from apps.news.models import NewsTag,NewsPub
+from apps.news.models import NewsTag,NewsPub,NewsHotAddModle
 from utils import json_status
 from django.http import QueryDict, JsonResponse
 import json
@@ -13,6 +13,8 @@ from qiniu import Auth
 from djt21 import settings
 from . import forms
 from apps.authPro.formcheck import FormMixin
+from django.utils.timezone import timedelta, datetime, make_aware
+from urllib.parse import urlencode
 
 
 # Create your views here.
@@ -169,18 +171,66 @@ class NewsManage(views.View):
 
         current_page = int(request.GET.get("p",1))  #获取前台传的当前页面号
 
+        new_tags = NewsTag.objects.all()
+
         per_page_news = 2     #每页显示的新闻列表数量
         newslist=NewsPub.objects.filter(is_delete=True).all()
+
+        start_time = request.GET.get('start_time','')
+        end_time = request.GET.get('end_time','')
+        title = request.GET.get('title','')
+        author = request.GET.get('author','')
+        tag_id = int(request.GET.get('tag_id',0))
+        #urlencode 生成标准的url查询格式的字符
+        other_param = urlencode({'start_time':start_time,
+                                 'end_time':end_time,
+                                 'title' : title,
+                                 'author' : author,
+                                 'tag_id' :tag_id
+                                 })
+
+        if start_time and end_time:
+            # print(start_time,end_time)
+            start_data = datetime.strptime(start_time, '%Y/%m/%d')
+            end_data = datetime.strptime(end_time, '%Y/%m/%d') + timedelta(days=1)  # 天数加1
+
+            #make_awre解决时区不是激活的警告
+            newslist = NewsPub.objects.filter(pub_time__range=(make_aware(start_data),make_aware(end_data)))
+
+        if title:
+            newslist = NewsPub.objects.filter(title__contains=title)
+            print(newslist)
+
+        if author:
+            newslist = NewsPub.objects.filter(auth__username__contains=author)
+
+        if tag_id:
+            newslist = NewsPub.objects.filter(tag_id=int(tag_id))
+
         paginator = Paginator(newslist, per_page_news)
         context = self.get_page_data(paginator,current_page)
-        # print("=====================")
-        # print(current_page)
-        # print(context)
-        # print("=====================")
+        context.update({'news_tags':new_tags,
+                        'other_param':other_param})
+
         return render(request,'cms/news/news_manage.html',context = context)
 
     def post(self,request):
         pass
+
+    def delete(self,request):
+        res = QueryDict(request.body)
+        news_id = res.get('news_id')
+        if news_id:
+            news = NewsPub.objects.filter(id=news_id).first()
+            if news:
+                hot_news = NewsHotAddModle.objects.filter(news=news)
+                if hot_news:
+                    hot_news.update(is_delete=False)
+                news.is_delete = False
+                news.save()
+                return json_status.result()
+            return json_status.params_error(message="新闻不存在")
+        return json_status.params_error(message="参数错误")
 
 
     def get_page_data(self,paginator,current_page=1):
@@ -231,4 +281,91 @@ class NewsManage(views.View):
             'current_page':current_page,
         }
         return context
+
+# /cms/news/hot/
+@method_decorator([csrf_exempt,staff_member_required(login_url='/auth/login/')],name='dispatch')
+class NewsHotView(views.View):
+    """
+    热点新闻
+    """
+    def get(self,request):
+        return render(request,'cms/news/news_hot.html')
+
+    def put(self,request):
+        priority = int(QueryDict(request.body).get('priority'))
+        hot_news_id = int(QueryDict(request.body).get('hot_news_id'))
+
+        news = NewsHotAddModle.objects.filter(id = hot_news_id)
+
+        if news:
+            # print(news)
+            # news[0].priority=priority
+            # news[0].save()
+            news.update(priority=priority)
+            return json_status.result(message="优先级修改成功！")
+        return json_status.params_error("新闻不存在！")
+
+    def delete(self,request):
+        # priority = int(QueryDict(request.body).get('priority'))
+        hot_news_id = int(QueryDict(request.body).get('hot_news_id'))
+
+        news = NewsHotAddModle.objects.filter(id=hot_news_id)
+        if news:
+            # print(news)
+            # news[0].priority=priority
+            # news[0].save()
+            news.update(is_delete = False)
+            return json_status.result(message="删除成功！")
+        return json_status.params_error("新闻不存在！")
+
+@method_decorator([csrf_exempt,staff_member_required(login_url='/auth/login/')],name='dispatch')
+class NewsHotAddView(views.View,FormMixin):
+    """
+    添加热点新闻
+    """
+    def get(self,request):
+        return render(request,'cms/news/news_hot_add.html')
+
+    def post(self,request):
+
+        form = forms.NewsHotAddForm(request.POST)
+        if form.is_valid():
+            news_id = form.cleaned_data.get('news_id')
+            priority = form.cleaned_data.get('priority')
+
+            news = NewsPub.objects.filter(id=news_id)
+
+            if news:
+                newes = NewsHotAddModle.objects.filter(news_id=news[0].id)
+                if newes:
+                    newes.update(is_delete = True,priority=priority)
+                else:
+                    NewsHotAddModle.objects.create(news=news[0],priority=priority)
+                return json_status.result(message='添加成功！')
+            else:
+                return json_status.params_error(message='新闻不存在！')
+        return json_status.params_error(message=self.get_error(form))
+
+
+
+@method_decorator([csrf_exempt,staff_member_required(login_url='/auth/login/')],name='dispatch')
+class NewsEidtView(views.View,FormMixin):
+    """
+    新闻编辑
+    """
+    def get(self,request):
+        news_id = int(request.GET.get('news_id'))
+        news_content = NewsPub.objects.filter(id = news_id).first()
+
+        new_tags = NewsTag.objects.filter(is_delete=True).all()
+
+        context = {
+            'news_content':news_content,
+            'news_tags' : new_tags,
+                   }
+        return render(request,'cms/news/pub_news.html',context=context)
+
+    def post(self,request):
+        pass
+
 
