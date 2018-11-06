@@ -16,7 +16,7 @@ $(function () {
         let hot_newses_arr = hot_newses.map(hot_news => `
           <tr>
             <td>
-              <a href="javascript:void(0);" data-news-id="${hot_news.news.id}">${hot_news.news.title}</a>
+              <a href="/news/detail/${hot_news.news.id}/" data-news-id="${hot_news.news.id}">${hot_news.news.title}</a>
             </td>
             <td>${hot_news.news.tag.name}</td>
             <td>${hot_news.priority}</td>

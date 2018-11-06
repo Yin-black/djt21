@@ -63,12 +63,18 @@ $(()=>{
     // 找到已经被激活的新闻分类下面的 a 标签
     let tagId = $('.news-nav ul li.active').children('a').data("id");
     // 获取绑定在按钮上的页码
+
+      // 设置点击加载更多的默认值为2
+    $(this).data("page", 2);
     let page= $(this).data("page");
     // 打印值
-    console.log(`
-      当前所处在分类id  ${tagId}
-      当前第几页  ${page}    
-    `);
+    // console.log(`
+    //   当前所处在分类id  ${tagId}
+    //   当前第几页  ${page}
+    // `);
+    // console.dir($(this));
+
+
     // 发起 get 的请求 也可以写成 $.get(`/news/list/?page=${page}&tag_id=${tagId}`, res=>{}) 方式
     $.get({
       // 请求的 url

@@ -89,6 +89,7 @@ $(function () {
 
   // ========= 发表新闻 ==========
   let $newsBtn = $("#btn-pub-news");
+
   $newsBtn.click(function () {
     let titleVal = $("#news-title").val();
     let descVal = $("#news-desc").val();
@@ -96,6 +97,9 @@ $(function () {
     let thumbnailVal = $thumbnailUrl.val();
     let contentHtml = editor.txt.html();
     let contentText = editor.txt.text();
+    //获取绑定在按钮上的news-id属性值
+    let news_id= $newsBtn.data('news-id');
+
     if (tagId === '0') {
       ALERT.alertInfoToast('请选择新闻标签')
     }
@@ -107,22 +111,35 @@ $(function () {
     //   新闻内容html版: ${contentHtml},
     //   新闻内容纯文字版：${contentText}
     // `);
-
-    $.ajax({
-      url: "/cms/pub_news/",
-      method: "post",
-      data: {
+    pu_url = "/cms/pub_news/";
+    modi_url ="/cms/news_edit/";
+    data =  {
         "title": titleVal,
         "desc": descVal,
         "tag_id": tagId,
         "thumbnail_url": thumbnailVal,
         "content": contentHtml,
-      },
+      };
+    let console_title = '';
+    if(news_id){
+        data['news_id'] = news_id;
+        console_title = '新闻修改成功！'
+    }
+    else{
+        console_title = '新闻发布成功！'
+    }
+
+    console.log(news_id);
+    console.log(data);
+    $.ajax({
+      url: news_id?modi_url:pu_url,
+      method: "post",
+      data:data,
       dataType: "json",
       success: res => {
         // console.log(res);
         if (res["code"] === 2) {
-          ALERT.alertNewsSuccessCallback("新闻发表成功", '跳到首页', () => {
+          ALERT.alertNewsSuccessCallback(console_title, '跳到首页', () => {
             window.location.href = '/';
           });
         } else {

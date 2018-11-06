@@ -17,7 +17,7 @@
       animation: 'slide-from-top',
     }, () => {
       // 2.2 发起请求
-      selfAjax('/cms/news_manage/', 'delete', {"news_id": newsId}, res => {
+      selfAjax('/cms/news_edit/', 'delete', {"news_id": newsId}, res => {
         if (res["code"] === 2) {
           swal({
             title: "删除",
