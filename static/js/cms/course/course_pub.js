@@ -37,7 +37,7 @@ $(function () {
     
     `);
 
-    selfAjax("/admin/course/pub/", 'post', {
+    selfAjax("/cms/course/pub/", 'post', {
       "title": courseTitle,
       "video_url": courseVideoUrl,
       "cover_url": courseCover,

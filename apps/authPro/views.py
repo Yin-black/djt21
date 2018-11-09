@@ -108,3 +108,4 @@ def send_sms_captcha_view(request):
     # return JsonResponse(str(mesg,encoding='utf-8'),safe=False)
     # return  JsonResponse({"code":2,"msg":"ok"})
     return json_status.result(message="ok")
+

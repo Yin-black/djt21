@@ -20,7 +20,7 @@
         <!-- nav start -->
         <nav class="nav">
             <ul class="menu">
-                <li class="active"><a href="{% url 'news:index' %}">首页</a></li>
+                <li><a href="{% url 'news:index' %}">首页</a></li>
                 <li><a href='{% url "course:course" %}'>在线课堂</a></li>
                 <li><a href="{% url 'doc:docdownload' %}">下载文档</a></li>
                 <li><a href="{% url 'news:search' %}">搜索</a></li>
@@ -80,7 +80,9 @@
 </footer>
 <!-- footer end -->
 
-{% block src %}{% endblock %}
+{% block src %}
+
+{% endblock %}
 </body>
 
 </html>

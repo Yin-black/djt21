@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import NewsConten,NewsTag,NewsPub,NewsHotAddModle
+from .models import NewsConten,NewsTag,NewsPub,NewsHotAddModle,NewsBanner
 from apps.authPro.serailizer import NewsUserSerailizer
 
 class NewsContentSerailizer(serializers.ModelSerializer):
@@ -29,3 +29,8 @@ class NewsHotSerailizer(serializers.ModelSerializer):
     class Meta:
         model = NewsHotAddModle
         fields = ('id','news','priority','create_time')
+
+class NewsBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NewsBanner
+        fields = '__all__'

@@ -1,25 +1,32 @@
 import os
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.shortcuts import render,reverse
 from django import views
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
-from apps.news.models import NewsTag,NewsPub,NewsHotAddModle
+from django.views.decorators.http import require_GET, require_POST
+from apps.news.models import NewsTag,NewsPub,NewsHotAddModle,NewsBanner
 from utils import json_status
 from django.http import QueryDict, JsonResponse
-import json
 from qiniu import Auth
 from djt21 import settings
 from . import forms
 from apps.authPro.formcheck import FormMixin
 from django.utils.timezone import timedelta, datetime, make_aware
 from urllib.parse import urlencode
+from apps.news.serailizer import NewsBannerSerializer
 
 
 # Create your views here.
 @staff_member_required(login_url='/auth/login/')
 def index(request):
+    """新闻主页"""
+    # yy_content_types = ContentType.objects.get_for_models(NewsBanner,NewsHotAddModle,NewsPub)
+    # yy_permissions = Permission.objects.filter(content_type__in=yy_content_types.values())
+    # print(yy_permissions)
     return render(request,'cms/index.html')
 
 
@@ -217,20 +224,7 @@ class NewsManage(views.View):
     def post(self,request):
         pass
 
-    def delete(self,request):
-        res = QueryDict(request.body)
-        news_id = res.get('news_id')
-        if news_id:
-            news = NewsPub.objects.filter(id=news_id).first()
-            if news:
-                hot_news = NewsHotAddModle.objects.filter(news=news)
-                if hot_news:
-                    hot_news.update(is_delete=False)
-                news.is_delete = False
-                news.save()
-                return json_status.result()
-            return json_status.params_error(message="新闻不存在")
-        return json_status.params_error(message="参数错误")
+
 
 
     def get_page_data(self,paginator,current_page=1):
@@ -263,9 +257,6 @@ class NewsManage(views.View):
         else:
             right_flag = False
             right_range = range(current_page, paginator.num_pages+1)
-        # print("***************")
-        # print(current_page)
-        # print("***************")
 
         context = {
             'paginator': paginator,
@@ -366,6 +357,121 @@ class NewsEidtView(views.View,FormMixin):
         return render(request,'cms/news/pub_news.html',context=context)
 
     def post(self,request):
-        pass
+        """
+        更新新闻
+        """
+        form = forms.NewsEditForm(request.POST)
+        if form.is_valid():
+            news_id = form.cleaned_data.get('news_id')
+            print(news_id)
+            title = form.cleaned_data.get('title')
+            desc = form.cleaned_data.get('desc')
+            thumbnail_url = form.cleaned_data.get('thumbnail_url')
+            content = form.cleaned_data.get("content")
+
+            tag_id = form.cleaned_data.get('tag_id')
+            newstag = NewsTag.objects.filter(id=tag_id).first()  #查询新闻所属的新闻类
+
+            if newstag:
+                new = NewsPub.objects.filter(id = news_id)
+                print(new[0].id)
+
+                new.update(id= news_id,title=title, desc=desc, thumbnail=thumbnail_url,auth = request.user,content=content, tag=newstag)
+
+                # print(newstag)
+                return json_status.result(message='更新成功！')
+            else:
+                return json_status.params_error(message='新闻标签不存在！')
+        else:
+            return json_status.params_error(message=self.get_error(form))
 
 
+    def delete(self,request):
+        """
+        删除新闻
+        :param request:
+        :return:
+        """
+        res = QueryDict(request.body)
+        news_id = res.get('news_id')
+        if news_id:
+            news = NewsPub.objects.filter(id=news_id).first()
+            if news:
+                hot_news = NewsHotAddModle.objects.filter(news=news)
+                if hot_news:
+                    hot_news.update(is_delete=False)
+                news.is_delete = False
+                news.save()
+                return json_status.result()
+            return json_status.params_error(message="新闻不存在")
+        return json_status.params_error(message="参数错误")
+
+@method_decorator([csrf_exempt,staff_member_required(login_url='/auth/login/')],name='dispatch')
+class NewsBannerView(views.View,FormMixin):
+    """新闻轮播图的增删改查"""
+
+    def get(self, request):
+        return render(request, 'cms/banner/banner_index.html')
+
+    def post(self, request):
+        form = forms.NewsBannerForm(request.POST)
+        if form.is_valid():
+            link_to = form.cleaned_data.get("link_to")
+            image_url = form.cleaned_data.get('image_url')
+            priority = form.cleaned_data.get('priority')
+            print('link_to:{},image_url:{},priority:{} '.format(link_to, image_url, priority))
+            banner = NewsBanner.objects.create(image_url=image_url, priority=priority, link_to=link_to)
+            return json_status.result(data={"banner_id": banner.id})
+        return json_status.params_error(message=self.get_error(form))
+
+    def put(self, request):
+        p = QueryDict(request.body)
+        banner_id = p.get("banner_id")
+        image_url = p.get("image_url")
+        priority = p.get("priority")
+        link_to = p.get("link_to")
+        if banner_id:
+            banner = NewsBanner.objects.filter(id=banner_id)
+            if banner:
+                banner.update(image_url=image_url, priority=priority, link_to=link_to)
+                return json_status.result()
+            return json_status.result().params_error(message='轮播图找不到')
+        return json_status.result().params_error(message="bannerId不存在")
+
+    def delete(self, request):
+        d = QueryDict(request.body)
+        banner_id = d.get("banner_id")
+        if banner_id:
+            banner = NewsBanner.objects.filter(id=banner_id)
+            if banner:
+                banner.update(is_delete=False)
+                return json_status.result()
+            return json_status.params_error(message="轮播图不存在")
+        return json_status.params_error(message="轮播图id不存在")
+
+@require_GET
+def news_banner_list(request):
+    """
+    返回banner的列表
+    serializer=[{key:value},{key:value},.....]
+    """
+    banners = NewsBanner.objects.filter(is_delete=True)
+    serializer = NewsBannerSerializer(banners, many=True)
+    return json_status.result(data={"banners": serializer.data})
+
+@csrf_exempt
+@require_POST
+def banner_upload_file(request):
+    """banner上传图片"""
+    filepath = os.path.join(settings.MEDIA_ROOT,'banner') #存储路径
+    f = request.FILES.get('upload_file')  #获取前端传来的文件
+    filename = os.path.join(filepath, f.name)  #添加文件名
+
+    with open(filename, 'wb') as file:
+        for chunk in f.chunks():
+            file.write(chunk)
+    fileurl = request.build_absolute_uri(settings.BANNER_URL + f.name)  # 生成一个可访问的url地址
+
+    print(fileurl)
+
+    return json_status.result(message="sucess", data={"file_url": fileurl})

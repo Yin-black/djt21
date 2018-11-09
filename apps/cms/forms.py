@@ -15,3 +15,8 @@ class NewsHotAddForm(forms.Form):
 
 class NewsEditForm(PubNewsForm):
     news_id = forms.CharField(error_messages={'required':'新闻ID不能为空！'})
+
+class NewsBannerForm(forms.Form):
+    image_url = forms.URLField(error_messages={"required": "图片地址不能为空", "invalid": "请输入合法的图片网址"})
+    priority = forms.IntegerField(error_messages={"required": "优先级不能为空"})
+    link_to = forms.URLField(error_messages={"required": "跳转地址不能为空", "invalid": "请输入合法的跳转网址"})

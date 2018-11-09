@@ -1,8 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from django.urls import reverse
+from django.http import Http404
 from django.views import View
-from .models import NewsPub,NewsTag,NewsHotAddModle
+from .models import NewsPub,NewsTag,NewsHotAddModle,NewsBanner
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .forms import NewContent
@@ -10,28 +9,35 @@ from apps.authPro.formcheck import FormMixin
 from .models import NewsConten
 from utils import json_status
 from .serailizer import NewsContentSerailizer,NewsPubSerailizer,NewsTagSerailizer,NewsHotSerailizer
-from .decortors import ajax_login_required
+from utils.decortors import ajax_login_required
 from djt21 import settings
-from django.core.paginator import Paginator   #分页
-
-
+from django.db.models import Q
+from apps.course.models import Course
+# encoding=utf8
 
 # Create your views here.
 class NewsView(View):
     def get(self,request):
-        newspubs = NewsPub.objects.defer('content').filter(is_delete=True).order_by('-id')   #倒序排列，最新发布的提前显示,同时conten字段不查询以提高速度
+        newspubs = NewsPub.objects.defer('content').filter(is_delete=True).all().order_by('-id')   #倒序排列，最新发布的提前显示,同时conten字段不查询以提高速度
         tag = NewsTag.objects.filter(is_delete=True).all()
-        return render(request,'news/index.html',context={"newspubs":newspubs,"newtags":tag})
+        h_news = NewsHotAddModle.objects.filter(is_delete=True)
+        banners = NewsBanner.objects.filter(is_delete=True)
+        courses = Course.objects.filter(is_delete=True).first()
 
-class SearchView(View):
-    def get(self,request):
-        return render(request,'news/search.html')
+        return render(request,'news/index.html',context={"newspubs":newspubs,
+                                                         "newtags":tag,
+                                                         'banners':banners,
+                                                         'h_news':h_news,
+                                                         'coureses':courses})
 
 
 class NewsDtailView(View):
     def get(self,request,tag_id):
-        news = NewsPub.objects.get(is_delete=True,id = tag_id)
-        return render(request,'news/news_detail.html',context={"news":news})
+        try:
+            news = NewsPub.objects.get(is_delete=True,id = tag_id)
+            return render(request,'news/news_detail.html',context={"news":news})
+        except NewsPub.DoesNotExist:
+            raise Http404
 
 @method_decorator([csrf_exempt,ajax_login_required],name="dispatch")
 class AddNewsContentView(View,FormMixin):
@@ -85,18 +91,26 @@ def newslis_view(request):
     """
 
     page = int(request.GET.get('page',1))
+    print(page)
     tag_id = int(request.GET.get('tag_id',0))
 
     start_page = settings.ONE_PAGE_NEWS_COUNT * (page-1)
     end_page = start_page + settings.ONE_PAGE_NEWS_COUNT
+
+    print("=================")
+    print(page,tag_id)
+    print("=================")
     if tag_id:
         nlist = NewsPub.objects.select_related('tag','auth').defer('content').filter(is_delete=True,tag_id=tag_id)[start_page:end_page]
 
         seralizer = NewsPubSerailizer(nlist,many=True)
         return json_status.result(data={"newses":seralizer.data})
     else:
-        print("新闻不存在！")
-        return json_status.params_error(message='新闻不存在！')
+        nlist = NewsPub.objects.select_related('tag', 'auth').defer('content').filter(is_delete=True)[
+                start_page:end_page]
+
+        seralizer = NewsPubSerailizer(nlist, many=True)
+        return json_status.result(data={"newses": seralizer.data})
 
 #     /news/hot/list/
 def news_hot_list(request):
@@ -136,3 +150,25 @@ def news_with_tag(request):
     serializer = NewsPubSerailizer(newstag,many=True)
 
     return json_status.result(data={'newses':serializer.data})
+
+def search(request):
+    try:
+        q = request.GET.get("q", '')
+        courses = Course.objects.filter(is_delete=True).first()
+        if q:
+            result_newses = NewsPub.objects.select_related('tag', 'auth').filter(Q(title__icontains=q)|Q(auth__username__icontains=q)|Q(tag__name__icontains=q)|Q(content__icontains=q)|Q(desc__icontains=q))
+
+            context = {
+                "result_newses": result_newses,
+                "q": q,
+            }
+        else:
+            #所有热门新闻都查出来
+            h_newses = NewsHotAddModle.objects.select_related('news', 'news__tag', 'news__auth').filter(is_delete=True)
+            context = {
+                "h_newses": h_newses,
+            }
+        context.update({'coureses':courses})
+        return render(request, 'news/search.html', context=context)
+    except:
+        raise Http404

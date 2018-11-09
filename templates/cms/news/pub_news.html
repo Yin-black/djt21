@@ -88,7 +88,7 @@
       </div>
       <div class="box-footer">
           {% if news_content %}
-              <a href="javascript:void (0);" class="btn btn-primary pull-right" id="btn-pub-news">
+              <a href="javascript:void (0);" class="btn btn-primary pull-right" id="btn-pub-news" data-news-id="{{ news_content.id }}">
           更新新闻
         </a>
           {% else %}
@@ -103,6 +103,7 @@
 {% endblock %}
 
 {% block script %}
+    <script src="/static/js/base/common.js"></script>
    <script src="https://cdn.bootcss.com/plupload/2.1.9/moxie.min.js"></script>
   <script src="https://cdn.bootcss.com/plupload/2.1.9/plupload.dev.js"></script>
   <script src="https://cdn.bootcss.com/qiniu-js/1.0.17.1/qiniu.min.js"></script>

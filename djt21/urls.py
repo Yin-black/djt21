@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.news.urls')),
     path('auth/',include('apps.authPro.urls')),
-    path('',include('apps.doc.urls')),
-    path('',include('apps.course.urls')),
+    path('doc/',include('apps.doc.urls')),
+    path('course/',include('apps.course.urls')),
     path('cms/',include('apps.cms.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)     #可以通过浏览器直接访问media文件夹

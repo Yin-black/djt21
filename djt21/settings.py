@@ -11,11 +11,14 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import sys
+
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
+sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -25,7 +28,7 @@ SECRET_KEY = '*u$#7(6a)_y$m0qp-%k&6$q-iw3%3!spug=t$^y1p+-k6sx5xq'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-#阿里云AK/SK
+#阿里云短信AK/SK
 ACCESS_KEY_ID = "LTAIUNmZMjuV6f2k"
 ACCESS_KEY_SECRET = "izKqv9rYlKSX6XjjhIro1DcEvPzVB1"
 
@@ -43,9 +46,18 @@ BUCKET_NAME = 'pizizhu-image'
 #每页显示的新闻数量
 ONE_PAGE_NEWS_COUNT = 2
 
+#百度云视频VOD
+BAIDU_ACESS_KEY = 'fb393f97251e46b685d5f680a3689fcc'
 
+BAIDU_SECRET_KEY = '15d1b6ad60be44f6b5e4b77a65642d51'
 
+BAIDU_USER_KEY = '016bea81906c49aa'
+
+BAIDU_USER_ID = 'a04f753283a143f9b45f8d28ede35c19'
+
+#允计所有IP访问
 ALLOWED_HOSTS = ['*']
+
 AUTH_USER_MODEL = 'authPro.User'  #注册自定的User模型，代替系统自定义的User
 
 # Application definition
@@ -162,3 +174,11 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR,'static'),]
 MEDIA_URL = '/media/'
 #项目根目录
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#Banner图片存储路径
+BANNER_URL = '/media/banner/'
+
+#图片存储路径
+DOC_URL = '/doc/'
+#项目根目录
+DOC_ROOT = os.path.join(BASE_DIR, 'doc')

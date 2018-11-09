@@ -55,3 +55,13 @@ class NewsHotAddModle(models.Model):
 
     create_time = models.DateTimeField(auto_now_add=True)
     is_delete = models.BooleanField(default=True)
+
+class NewsBanner(models.Model):
+    image_url = models.URLField()
+    priority = models.IntegerField()
+    link_to = models.URLField()
+    create_date = models.DateTimeField(auto_now_add=True)
+    is_delete = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-priority']

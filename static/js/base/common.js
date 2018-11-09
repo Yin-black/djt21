@@ -60,3 +60,20 @@ function dateFormat(time) {
     return Y + M + D + h + m;
   }
 }
+
+ // http://192.168.31.200:8000/course/
+  let url = window.location.href;
+  // http/https
+  let protocol = window.location.protocol;
+  // 192.168.31.200:8000
+  let host = window.location.host;
+  let domain = protocol + '//' + host;
+  let path = url.replace(domain, '');
+  // console.log(path);
+  let liDomArr = document.querySelectorAll('.nav .menu li');
+  for (let i =0;i<liDomArr.length;i++) {
+    let aDom = liDomArr[i].querySelector('a');
+    if (aDom.href === url) {
+      liDomArr[i].className = 'active';
+    }
+  }

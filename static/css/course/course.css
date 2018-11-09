@@ -75,10 +75,10 @@
     color: #6fa026;
 
 }
-.course-item .course-content .course-pirce span{
+.course-item .course-content .course-price span{
     font-size: 14px;
 }
-.course-item .course-content .course-pirce.free {
+.course-item .course-content .course-price.free {
     color: green;
 }
 /* ========== course-container  end =========  */

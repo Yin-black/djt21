@@ -17,24 +17,34 @@
       <!-- banner start -->
       <div class="banner">
         <ul class="pic">
-          <li style="display:block;"><a href="javascript:void(0);"><img
-                  src="https://res.shiguangkey.com//file/201806/19/20180619142252602590185.jpg" alt="test"></a></li>
-          <li><a href="javascript:void(0);"><img
-                  src="https://res.shiguangkey.com//file/201806/19/20180619141337485823895.jpg" alt="test"></a></li>
-          <li><a href="javascript:void(0);"><img
-                  src="https://res.shiguangkey.com//file/201806/21/20180621150342030454625.jpg" alt="test"></a></li>
-          <li><a href="javascript:void(0);"><img
-                  src="https://res.shiguangkey.com//file/201805/17/20180517113424433990524.jpg" alt="test"></a></li>
+            {% for banner in banners%}
+                {% if forloop.counter0 == banner %}
+              <li style="display:block;">
+                  <a href="{{ banner.link_to }}"><img
+                      src="{{ banner.image_url }}" alt="test">
+                  </a>
+              </li>
+                {% else %}
+                   <li>
+                  <a href="{{ banner.link_to }}"><img
+                      src="{{ banner.image_url }}" alt="test">
+                  </a>
+              </li>
+                {% endif %}
+            {% endfor %}
         </ul>
         <a href="javascript:void(0);" class="btn prev">
           <i class="PyWhich py-arrow-left"></i></a>
         <a href="javascript:void(0);" class="btn next">
           <i class="PyWhich py-arrow-right"></i></a>
         <ul class="tab">
-          <li class="active"></li>
-          <li></li>
-          <li></li>
-          <li></li>
+          {% for banner in banners%}
+            {% if forloop.counter0 == banner%}
+                <li class="active"></li>
+            {% else %}
+                <li></li>
+            {% endif %}
+          {% endfor %}
         </ul>
       </div>
       <!-- banner end -->
@@ -42,30 +52,16 @@
       <div class="content">
         <!-- recommend-news start -->
         <ul class="recommend-news">
+            {% for h_new in h_news|slice:"3" %}
           <li>
             <a href="javascript:void(0);" target="_blank">
               <div class="recommend-thumbnail">
-                <img src="https://static-image.xfz.cn/1529218165_112.jpg-website.news.list" alt="title">
+                <img src="{{ h_new.news.thumbnail }}" alt="title">
               </div>
-              <p class="info">社交电商，终究还是逃不脱阿里的势力范围</p>
+              <p class="info">{{ h_new.news.title }}</p>
             </a>
           </li>
-          <li>
-            <a href="javascript:void(0);" target="_blank">
-              <div class="recommend-thumbnail">
-                <img src="https://static-image.xfz.cn/1529218165_112.jpg-website.news.list" alt="title">
-              </div>
-              <p class="info">社交电商，终究还是逃不脱阿里的势力范围</p>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0);" target="_blank">
-              <div class="recommend-thumbnail">
-                <img src="https://static-image.xfz.cn/1529218165_112.jpg-website.news.list" alt="title">
-              </div>
-              <p class="info">社交电商，终究还是逃不脱阿里的势力范围</p>
-            </a>
-          </li>
+        {% endfor %}
         </ul>
         <!-- recommend-news end -->
         <!--  news-nav start-->
@@ -81,7 +77,7 @@
         <!-- news-contain start -->
         <div class="news-contain">
           <ul class="news-list">
-              {% for newspub in newspubs %}
+              {% for newspub in newspubs|slice:'2'  %}
                 <li class="news-item">
                   <a href="{% url 'news:dtail' newspub.id %}" class="news-thumbnail" target="_blank">
                     <img src="{{ newspub.thumbnail }}" alt="title">
@@ -98,25 +94,25 @@
                 </li>
             {% endfor %}
           </ul>
-          <div class="loading-img"></div>
+{#          <div class="loading-img"></div>#}
         </div>
         <!-- news-contain end -->
         <!-- btn-more start -->
-        <a href="javascript:void(0);" class="btn-more">加载更多</a>
+        <a href="javascript:void(0);" class="btn-more" data-page="1">加载更多</a>
         <!-- btn-more end -->
       </div>
       <!-- content end -->
     </div>
     <!-- main-contain  end -->
-    <!-- side start -->
+<!-- side start -->
     <aside class="side">
       <div class="side-activities">
-        <h3 class="activities-title">在线课堂<a href="javascript:void(0)">更多</a></h3>
+        <h3 class="activities-title">在线课堂<a href="/course/course/">更多</a></h3>
         <div class="activities-img">
-          <a href="javascript:void(0);" target="_blank">
-            <img src="https://res.shiguangkey.com//file/201804/26/20180426142628123364782.jpg" alt="title">
+          <a href="{% url 'course:coursedetail' coureses.id %}" target="_blank">
+            <img src="{{ coureses.cover_url }}" alt="title">
           </a>
-          <p class="activities-tips">外国Girl在向你招手</p>
+          <p class="activities-tips">{{ coureses.title }}</p>
         </div>
         <ul class="activities-list">
           <li>
@@ -137,16 +133,9 @@
         <h3 class="attention-title">关注我</h3>
         <ul class="side-attention-address">
           <li>
-            <a href="javascript:void(0);" target="_blank"><i class="PyWhich py-GitHub"></i>付帅帅</a>
+            <a href="javascript:void(0);" target="_blank"><i class="PyWhich py-GitHub"></i>痞子猪</a>
           </li>
-          <li>
-            <a href="javascript:void(0);" target="_blank"><i class="PyWhich py-zhihu"
-                                                             style="color:rgb(0, 108, 226);"></i>付帅帅付帅帅</a>
-          </li>
-          <li>
-            <a href="javascript:void(0);" target="_blank"><i class="PyWhich py-weibo"
-                                                             style="color:rgba(245, 100, 103)"></i>付帅帅</a>
-          </li>
+
         </ul>
         <div class="side-attention-qr">
           <p>扫码关注</p>
@@ -155,54 +144,24 @@
       <div class="side-hot-recommend">
         <h3 class="hot-recommend">热门推荐</h3>
         <ul class="hot-news-list">
-          <li>
+          {% for h_new in h_news %}
+            <li>
             <a href="javascript:void(0)" class="hot-news-contain clearfix">
               <div class="hot-news-thumbnail">
-                <img src="http://a1.qpic.cn/psb?/V13Pc4324LdOaJ/EaLrCUqB.T14wh*zo.6jalz0OlnGr7k*Ka5MzNoWnsY!/b/dAgBAAAAAAAA"
+                <img src="{{ h_new.news.thumbnail }}"
                      alt="">
               </div>
               <div class="hot-news-content">
-                <p class="hot-news-title">湖南信息技术类中高职衔接培训班来访潭州，探索互联网+教育新模式</p>
+                <p class="hot-news-title">{{ h_new.news.title }}</p>
                 <div class="hot-news-other clearfix">
-                  <span class="news-type">热点</span>
-                  <time class="news-pub-time" datetime="6-16">6月16日</time>
-                  <span class="news-author">Which</span>
+                  <span class="news-type">{{ h_new.news.tag.name }}</span>
+                  <time class="news-pub-time" datetime="6-16">{{ h_new.create_time }}</time>
+                  <span class="news-author">{{ h_new.news.auth.username }}</span>
                 </div>
               </div>
             </a>
           </li>
-          <li>
-            <a href="javascript:void(0)" class="hot-news-contain clearfix">
-              <div class="hot-news-thumbnail">
-                <img src="http://a1.qpic.cn/psb?/V13Pc4324LdOaJ/EaLrCUqB.T14wh*zo.6jalz0OlnGr7k*Ka5MzNoWnsY!/b/dAgBAAAAAAAA"
-                     alt="">
-              </div>
-              <div class="hot-news-content">
-                <p class="hot-news-title">湖南信息技术类中高职衔接培训班来访潭州，探索互联网+教育新模式</p>
-                <div class="hot-news-other clearfix">
-                  <span class="news-type">热点</span>
-                  <time class="news-pub-time" datetime="6-16">6月16日</time>
-                  <span class="news-author">Which</span>
-                </div>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)" class="hot-news-contain clearfix">
-              <div class="hot-news-thumbnail">
-                <img src="http://a1.qpic.cn/psb?/V13Pc4324LdOaJ/EaLrCUqB.T14wh*zo.6jalz0OlnGr7k*Ka5MzNoWnsY!/b/dAgBAAAAAAAA"
-                     alt="">
-              </div>
-              <div class="hot-news-content">
-                <p class="hot-news-title">湖南信息技术类中高职衔接培训班来访潭州，探索互联网+教育新模式</p>
-                <div class="hot-news-other clearfix">
-                  <span class="news-type">热点</span>
-                  <time class="news-pub-time" datetime="6-16">6月16日</time>
-                  <span class="news-author">Which</span>
-                </div>
-              </div>
-            </a>
-          </li>
+          {% endfor %}
         </ul>
       </div>
     </aside>
