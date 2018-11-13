@@ -31,7 +31,7 @@ $(function () {
 
                         message.showSuccess(error['msg']);
                         setTimeout(()=>{
-                           window.location.href='/';
+                           window.location.href= document.referrer;
                         },2000)
                          //延时2秒跳转到主页
                     }
